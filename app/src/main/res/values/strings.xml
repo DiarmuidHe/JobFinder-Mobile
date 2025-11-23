@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">JobFinder</string>
+    <string name="top_bar_name">JobFinder</string>
+    <string name="grid_layout_toggle">Grid layout</string>
+    <string name="linear_layout_toggle">Linear layout</string>
+
+</resources>
