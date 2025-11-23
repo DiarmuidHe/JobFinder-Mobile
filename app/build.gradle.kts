@@ -2,16 +2,19 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.compose")
+    id("org.jetbrains.kotlin.plugin.serialization")
+    id("com.google.devtools.ksp")
 }
+
 
 android {
     namespace = "com.example.jobfinder"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.jobfinder"
         minSdk = 24
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
 
@@ -48,18 +51,51 @@ android {
 }
 
 dependencies {
+    // --- Core + lifecycle ---
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.activity.compose)
 
-    implementation(platform("androidx.compose:compose-bom:2024.12.01"))
-    implementation("androidx.activity:activity-compose:1.9.3")
-    implementation("androidx.compose.material3:material3")
-    implementation("androidx.compose.ui:ui")
-    implementation("androidx.compose.ui:ui-graphics")
-    implementation("androidx.compose.ui:ui-tooling-preview")
-    implementation("androidx.core:core-ktx:1.15.0")
-    implementation("androidx.datastore:datastore-preferences:1.1.1")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:${rootProject.extra["lifecycle_version"]}")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:${rootProject.extra["lifecycle_version"]}")
+    // --- Compose BOM + UI ---
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.ui.graphics)
+    implementation(libs.androidx.compose.ui.tooling.preview)
 
-    debugImplementation("androidx.compose.ui:ui-test-manifest")
-    debugImplementation("androidx.compose.ui:ui-tooling")
+    // Material 3
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.material3.android) // optional, Android-specific M3
+
+    // Google Fonts
+    implementation(libs.androidx.ui.text.google.fonts)
+
+    // --- DataStore ---
+    implementation(libs.datastore)
+    implementation(libs.androidx.datastore.preferences.core.jvm)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+
+    // --- Networking: Retrofit + OkHttp + Kotlinx Serialization ---
+    implementation(libs.retrofit)                    // 2.11.0 (from your toml)
+    implementation(libs.okhttp)                      // 4.12.0 -> safe with Kotlin 2.0.21
+    implementation(libs.kotlinx.serialization)       // JSON
+    implementation(libs.kotlinx.serialization.converter)
+
+    // --- Room (with KSP) ---
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
+
+    // --- Coil (images) ---
+    implementation(libs.coil)
+
+    // --- Tests / debug ---
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+
+    debugImplementation(libs.androidx.compose.ui.tooling)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
 }
