@@ -1,73 +1,161 @@
 package com.example.jobfinder.ui
 
-
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.jobfinder.JobFinderApplication
-import com.example.jobfinder.R
-import com.example.jobfinder.data.UserPreferencesRepository
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
+import com.example.jobfinder.data.FavoriteJobRepository
+import com.example.jobfinder.data.JobRepository
+import com.example.jobfinder.data.SearchUserPreferencesRepository
+import com.example.jobfinder.model.FavoriteJob
+import com.example.jobfinder.model.Job
+import com.example.jobfinder.ui.viewmodel.JobFinderUiState
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-
-/*
- * View model of Jobfinder Release components
+import android.util.Log
+/**
+ * ViewModel for JobFinder app
  */
 class JobFinderViewModel(
-    private val userPreferencesRepository: UserPreferencesRepository
+    private val jobRepository: JobRepository,
+    private val favoriteJobRepository: FavoriteJobRepository,
+    private val userPreferencesRepository: SearchUserPreferencesRepository
 ) : ViewModel() {
 
-    val uiState: StateFlow<JobFinderUiState> =
-        userPreferencesRepository.isLinearLayout.map { isLinearLayout ->
-            JobFinderUiState(isLinearLayout)
-        }.stateIn(
-            scope = viewModelScope,
-            // Flow is set to emits value for when app is on the foreground
-            // 5 seconds stop delay is added to ensure it flows continuously
-            // for cases such as configuration change
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = runBlocking {
-                JobFinderUiState(
-                    isLinearLayout = userPreferencesRepository.isLinearLayout.first()
-                )
-            }
-        )
+    private val _uiState = MutableStateFlow(JobFinderUiState())
+    val uiState = _uiState.asStateFlow()
 
-    /*
-     * [selectLayout] change the layout and icons accordingly and
-     * save the selection in DataStore through [userPreferencesRepository]
-     */
-    fun selectLayout(isLinearLayout: Boolean) {
+    init {
         viewModelScope.launch {
-            userPreferencesRepository.saveLayoutPreference(isLinearLayout)
+            // restore last search
+            onSearchTextChange(userPreferencesRepository.searchString.first())
+
+            // load favorites
+            updateFavoriteJobs()
+
+            // onboarding
+            if (!userPreferencesRepository.isOnboardingVisible.first()) {
+                userPreferencesRepository.saveOnboardingVisibilityBooleanPreference(true)
+                setOnboardingVisible()
+            }
         }
     }
+
+    // ---------------- SEARCH ----------------
+
+    fun onSearchTextChange(text: String) =
+        viewModelScope.launch {
+            _uiState.update { state ->
+                state.copy(
+                    searchText = text,
+                    isSearching = true         // mark searching started
+                )
+            }
+
+            userPreferencesRepository.saveSearchStringPreference(text)
+
+            // small debounce
+            delay(500)
+
+            searchJobs(text)
+
+            if (userPreferencesRepository.isOnboardingVisible.first()) {
+                _uiState.update { state ->
+                    state.copy(isOnboardingVisible = false)
+                }
+            }
+        }
+
+    private fun searchJobs(searchString: String) =
+        viewModelScope.launch {
+            jobRepository.getJobsByQuery("") // force "all jobs"
+                .collect { jobs ->
+                    android.util.Log.d("JobFinderVM", "DEBUG all jobs -> ${jobs.size}")
+                    _uiState.update { state ->
+                        state.copy(
+                            jobs = jobs,
+                            isSearching = false
+                        )
+                    }
+                }
+        }
+
+    // ---------------- SELECTED JOB ----------------
+
+    fun onJobClick(job: Job) {
+        _uiState.update { state ->
+            state.copy(selectedJob = job)
+        }
+    }
+
+    // ---------------- FAVORITES ----------------
+
+    fun isJobFavorite(favoriteJob: FavoriteJob): Boolean =
+        _uiState.value.favoriteJobs.any { favorite ->
+            favorite.jobId == favoriteJob.jobId
+        }
+
+    fun toggleFavorite(favoriteJob: FavoriteJob) =
+        viewModelScope.launch {
+            val isFavorite = isJobFavorite(favoriteJob)
+
+            if (isFavorite) {
+                // delete using its jobId
+                favoriteJobRepository.deleteFavoriteJob(favoriteJob.jobId)
+            } else {
+                // insert directly
+                favoriteJobRepository.insertFavoriteJob(
+                    FavoriteJob(
+                        jobId = favoriteJob.jobId,
+                        title = favoriteJob.title,
+                        company = favoriteJob.company,
+                        location = favoriteJob.location
+                    )
+                )
+            }
+
+            updateFavoriteJobs()
+        }
+
+    private fun updateFavoriteJobs() =
+        viewModelScope.launch {
+            val favorites = favoriteJobRepository.getFavoriteJobs().first()
+            _uiState.update { state ->
+                state.copy(favoriteJobs = favorites)
+            }
+        }
+
+    // ---------------- ONBOARDING ----------------
+
+    private fun setOnboardingVisible() =
+        viewModelScope.launch {
+            _uiState.update { state ->
+                state.copy(isOnboardingVisible = true)
+            }
+        }
+
+    // ---------------- FACTORY ----------------
 
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
-                val application = (this[APPLICATION_KEY] as JobFinderApplication)
-                JobFinderViewModel(application.userPreferencesRepository)
+                val application =
+                    (this[ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY] as JobFinderApplication)
+                val jobRepository = application.jobRepository
+                val favoriteJobRepository = application.favoriteJobRepository
+                val userPreferencesRepository = application.userPreferencesRepository
+                JobFinderViewModel(
+                    jobRepository = jobRepository,
+                    favoriteJobRepository = favoriteJobRepository,
+                    userPreferencesRepository = userPreferencesRepository
+                )
             }
         }
     }
 }
-
-/*
- * Data class containing various UI States for JobFinder Release screens
- */
-data class JobFinderUiState(
-    val isLinearLayout: Boolean = true,
-    val toggleContentDescription: Int =
-        if (isLinearLayout) R.string.grid_layout_toggle else R.string.linear_layout_toggle,
-    val toggleIcon: Int =
-        if (isLinearLayout) R.drawable.ic_grid_layout else R.drawable.ic_linear_layout
-)

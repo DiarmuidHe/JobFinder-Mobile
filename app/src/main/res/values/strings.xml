@@ -2,6 +2,15 @@
     <string name="app_name">JobFinder</string>
     <string name="top_bar_name">JobFinder</string>
     <string name="grid_layout_toggle">Grid layout</string>
+    <string name="depart">Depart</string>
+    <string name="arrive">Arrive</string>
     <string name="linear_layout_toggle">Linear layout</string>
-
+    <string name="user_input">Enter departure airport</string>
+    <string name="favorite">Favorite</string>
+    <string name="flights_from">Flights from %s</string>
+    <string name="favorite_routes">Favorite routes</string>
+    <string name="welcome">Welcome to the App!</string>
+    <string name="lets_search">Let\'s search for flights.</string>
+    <string name="no_favorites">No favorites yet</string>
+    <string name="add_routes">Add routes to your favorites by clicking \"Star icon\"</string>
 </resources>

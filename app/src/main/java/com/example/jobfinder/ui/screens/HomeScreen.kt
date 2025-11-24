@@ -12,148 +12,99 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.example.jobfinder.R
-import com.example.jobfinder.model.Airport
-import com.example.jobfinder.model.FavoriteRoute
-import com.example.jobfinder.ui.components.AirportsListItem
-import com.example.jobfinder.ui.components.FavoriteRoutesItem
-import com.example.jobfinder.ui.components.FlightSearchTextField
-import com.example.jobfinder.ui.components.FlightSearchTitleItem
-import com.example.jobfinder.ui.components.RoutesForSelectedAirportItem
-import com.example.jobfinder.ui.theme.FlightSearchAppTheme
-import com.example.jobfinder.utils.ThemePreviews
-import com.example.jobfinder.utils.emptyAirportData
-import com.example.jobfinder.utils.fakeAirportsData
+import com.example.jobfinder.model.Job
+import com.example.jobfinder.model.FavoriteJob
+import com.example.jobfinder.ui.components.JobItem
+import com.example.jobfinder.ui.components.JobSearchTextField
+import com.example.jobfinder.ui.components.JobSearchTitleItem
+import com.example.jobfinder.ui.components.JobsListItem
+import com.example.jobfinder.ui.components.FavoriteJobsItem
+import com.example.jobfinder.ui.screens.WelcomeScreen
 
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
     searchText: String,
-    airports: List<Airport>,
-    favorites: List<FavoriteRoute>,
+    jobs: List<Job>,
+    favorites: List<FavoriteJob>,
     isSearching: Boolean,
     onSearchTextChange: (String) -> Unit,
-    onAirportSelected: (Airport) -> Unit,
-    isAirportSelected: Boolean,
-    arrivalsForSelectedAirport: List<Airport>,
-    onFavoriteRouteClicked: (FavoriteRoute) -> Unit,
-    isFavoriteButtonFilled: (FavoriteRoute) -> Boolean,
-    selectedAirport: Airport?,
+    onJobSelected: (Job) -> Unit,
+    selectedJob: Job?,
+    onFavoriteJobClicked: (FavoriteJob) -> Unit,
+    isFavoriteButtonFilled: (FavoriteJob) -> Boolean,
     isOnboardingVisible: Boolean,
 ) {
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.surfaceContainerHigh),
+            .background(MaterialTheme.colorScheme.surfaceContainerHigh)
     ) {
+
+        // Loading indicator
         if (isSearching) {
-            Box(
-                modifier = Modifier.fillMaxSize()
-            ) {
+            Box(modifier = Modifier.fillMaxSize()) {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             }
         }
-        FlightSearchTextField(
+
+        // Search bar
+        JobSearchTextField(
             searchText = searchText,
             onSearchTextChange = onSearchTextChange
         )
+
+        // Show onboarding
         if (isOnboardingVisible) {
             WelcomeScreen()
         }
-        when (searchText.isBlank()) {
-            true -> {
-                AnimatedVisibility(
-                    visible = !isAirportSelected
-                ) {
-                    Column(
-                        modifier = Modifier,
-                        verticalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        if (favorites.isEmpty()) {
-                            NoFavoritesScreen()
-                        } else {
-                            FlightSearchTitleItem(text = stringResource(id = R.string.favorite_routes))
-                            FavoriteRoutesItem(
-                                favorites = favorites,
-                                airports = airports,
-                                onFavoriteRouteClicked = onFavoriteRouteClicked,
-                                isFavoriteButtonFilled = isFavoriteButtonFilled,
-                                modifier = Modifier.animateEnterExit(
-                                    enter = expandVertically(animationSpec = tween(500)),
-                                    exit = shrinkVertically()
-                                )
+
+        // MAIN CONTENT
+        if (searchText.isBlank()) {
+            AnimatedVisibility(visible = true) {
+                Column(verticalArrangement = Arrangement.SpaceBetween) {
+                    if (favorites.isEmpty()) {
+                        Text(
+                            text = "No Saved Jobs",
+                            modifier = Modifier.align(Alignment.CenterHorizontally),
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                    } else {
+                        JobSearchTitleItem(text = "Saved Jobs")
+                        FavoriteJobsItem(
+                            favorites = favorites,
+                            onFavoriteJobClicked = onFavoriteJobClicked,
+                            isFavoriteButtonFilled = isFavoriteButtonFilled,
+                            modifier = Modifier.animateEnterExit(
+                                enter = expandVertically(animationSpec = tween(500)),
+                                exit = shrinkVertically()
                             )
-                        }
+                        )
                     }
                 }
             }
-
-            false -> {
-                AnimatedVisibility(
-                    visible = isAirportSelected
-                ) {
-                    Column(verticalArrangement = Arrangement.SpaceBetween) {
-                        if (selectedAirport != null) {
-                            FlightSearchTitleItem(
-                                text = stringResource(
-                                    R.string.flights_from,
-                                    selectedAirport.iataCode
-                                ),
-                            )
-                            RoutesForSelectedAirportItem(
-                                arrivalsForSelectedAirport = arrivalsForSelectedAirport,
-                                selectedAirport = selectedAirport,
-                                onFavoriteRouteClicked = onFavoriteRouteClicked,
-                                isFavoriteButtonFilled = isFavoriteButtonFilled,
-                                modifier = Modifier.animateEnterExit(
-                                    enter = expandVertically(
-                                        animationSpec = tween(500),
-                                        expandFrom = Alignment.Top
-                                    ) + fadeIn(
-                                        initialAlpha = 0.3f
-                                    ),
-                                    exit = shrinkVertically()
-                                )
-                            )
-                        }
-                    }
-                }
-                AirportsListItem(
-                    airports = airports,
-                    onAirportSelected = onAirportSelected
+        } else {
+            // SEARCH RESULTS LIST
+            AnimatedVisibility(visible = true){
+                JobsListItem(
+                    jobs = jobs,
+                    onJobSelected = onJobSelected,
+                    modifier = Modifier.animateEnterExit(
+                        enter = expandVertically(
+                            animationSpec = tween(500),
+                            expandFrom = Alignment.Top
+                        ) + fadeIn(initialAlpha = 0.3f),
+                        exit = shrinkVertically()
+                    )
                 )
             }
-        }
-    }
-}
 
-@ThemePreviews
-@Composable
-fun HomeScreenPreview() {
-    FlightSearchAppTheme {
-        Surface(
-            color = MaterialTheme.colorScheme.surfaceContainerHigh
-        ) {
-            HomeScreen(
-                searchText = "M",
-                airports = fakeAirportsData,
-                isSearching = false,
-                onSearchTextChange = { },
-                isAirportSelected = false,
-                onAirportSelected = { },
-                selectedAirport = fakeAirportsData.first(),
-                arrivalsForSelectedAirport = fakeAirportsData,
-                onFavoriteRouteClicked = {},
-                isFavoriteButtonFilled = { true },
-                favorites = emptyList(),
-                isOnboardingVisible = false
-            )
         }
     }
 }

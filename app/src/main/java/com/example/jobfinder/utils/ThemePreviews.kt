@@ -1,4 +1,4 @@
-package com.example.flightsearchapp.utils
+package com.example.jobfinder.utils
 
 import android.content.res.Configuration
 import androidx.compose.ui.tooling.preview.Preview

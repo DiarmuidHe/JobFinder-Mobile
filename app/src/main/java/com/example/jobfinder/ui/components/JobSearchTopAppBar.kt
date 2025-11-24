@@ -10,12 +10,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.example.jobfinder.R
-import com.example.jobfinder.ui.theme.FlightSearchAppTheme
+import com.example.jobfinder.ui.theme.JobFinderTheme
 import com.example.jobfinder.utils.ThemePreviews
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FlightSearchTopAppBar(modifier: Modifier = Modifier) {
+fun JobSearchTopAppBar(modifier: Modifier = Modifier) {
 
     TopAppBar(
         title = {
@@ -33,12 +33,12 @@ fun FlightSearchTopAppBar(modifier: Modifier = Modifier) {
 
 @ThemePreviews
 @Composable
-fun FlightSearchTopAppBarPreview() {
-    FlightSearchAppTheme {
+fun JobSearchTopAppBarPreview() {
+    JobFinderTheme {
         Surface(
             color = MaterialTheme.colorScheme.surfaceContainerHigh
         ) {
-            FlightSearchTopAppBar()
+            JobSearchTopAppBar()
         }
     }
 }

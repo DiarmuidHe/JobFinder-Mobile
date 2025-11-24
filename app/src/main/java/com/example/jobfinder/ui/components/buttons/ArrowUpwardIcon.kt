@@ -17,7 +17,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.jobfinder.R
-import com.example.jobfinder.ui.theme.FlightSearchAppTheme
+import com.example.jobfinder.ui.theme.JobFinderTheme
 import com.example.jobfinder.ui.theme.gradientColors
 import com.example.jobfinder.utils.ThemePreviews
 
@@ -61,7 +61,7 @@ fun ArrowUpwardIcon(
 @ThemePreviews
 @Composable
 fun ArrowUpwardIconPreview() {
-    FlightSearchAppTheme {
+    JobFinderTheme {
         ArrowUpwardIcon()
     }
 }

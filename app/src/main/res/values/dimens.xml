@@ -15,6 +15,10 @@
      limitations under the License.
 -->
 <resources>
-    <dimen name="padding_medium">16dp</dimen>
     <dimen name="padding_small">8dp</dimen>
+    <dimen name="padding_large">16dp</dimen>
+    <dimen name="padding_extra_large">50dp</dimen>
+    <dimen name="padding_medium">12dp</dimen>
+    <dimen name="icon_standard">30dp</dimen>
+    <dimen name="icon_large">100dp</dimen>
 </resources>

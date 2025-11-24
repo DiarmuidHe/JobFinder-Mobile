@@ -14,8 +14,9 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import com.example.jobfinder.R
 import com.example.jobfinder.ui.components.buttons.ArrowUpwardIcon
-import com.example.jobfinder.ui.theme.FlightSearchAppTheme
+import com.example.jobfinder.ui.theme.JobFinderTheme
 import com.example.jobfinder.utils.ThemePreviews
+
 
 @Composable
 fun WelcomeScreen(
@@ -47,7 +48,7 @@ fun WelcomeScreen(
 @ThemePreviews
 @Composable
 fun WelcomeScreenPreview() {
-    FlightSearchAppTheme {
+    JobFinderTheme {
         Surface(
             color = MaterialTheme.colorScheme.surfaceContainerHigh
         ) {

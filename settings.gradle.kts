@@ -8,7 +8,6 @@ pluginManagement {
             }
         }
         mavenCentral()
-        // Add this line to search the Gradle Plugin Portal for plugins
         gradlePluginPortal()
     }
 }

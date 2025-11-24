@@ -22,7 +22,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import com.example.jobfinder.R
-import com.example.jobfinder.ui.theme.FlightSearchAppTheme
+import com.example.jobfinder.ui.theme.JobFinderTheme
 import com.example.jobfinder.ui.theme.blackWhiteGradient
 import com.example.jobfinder.utils.ThemePreviews
 
@@ -74,7 +74,7 @@ fun NoFavoritesScreen(
 @ThemePreviews
 @Composable
 fun NoFavoritesScreenPreview() {
-    FlightSearchAppTheme {
+    JobFinderTheme {
         Surface(
             modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainerHigh)
         ) {

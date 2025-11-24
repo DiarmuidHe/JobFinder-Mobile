@@ -7,22 +7,17 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import com.example.jobfinder.R
-import com.example.jobfinder.model.Airport
-import com.example.jobfinder.ui.theme.FlightSearchAppTheme
-import com.example.jobfinder.utils.ThemePreviews
-import com.example.jobfinder.utils.fakeAirportsData
+import com.example.jobfinder.model.Job
 
 @Composable
-fun AirportsListItem(
+fun JobsListItem(
     modifier: Modifier = Modifier,
-    airports: List<Airport>,
-    onAirportSelected: (Airport) -> Unit
+    jobs: List<Job>,
+    onJobSelected: (Job) -> Unit
 ) {
     LazyColumn(
         modifier = modifier
@@ -30,31 +25,15 @@ fun AirportsListItem(
             .padding(dimensionResource(id = R.dimen.padding_large)),
         verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.padding_small))
     ) {
-        items(airports) { airport ->
+        items(jobs) { job ->
             Row(modifier = Modifier
-                .clickable { onAirportSelected(airport) }
+                .clickable { onJobSelected(job) }
             ) {
-                AirportInfoItem(
+                JobInfoItem(
                     modifier = Modifier,
-                    iataCode = airport.iataCode,
-                    name = airport.name
+                    job = job
                 )
             }
-        }
-    }
-}
-
-@ThemePreviews
-@Composable
-fun AirportsListItemPreview() {
-    FlightSearchAppTheme {
-        Surface(
-            color = MaterialTheme.colorScheme.surfaceContainerHigh
-        ) {
-            AirportsListItem(
-                airports = fakeAirportsData,
-                onAirportSelected = {}
-            )
         }
     }
 }
