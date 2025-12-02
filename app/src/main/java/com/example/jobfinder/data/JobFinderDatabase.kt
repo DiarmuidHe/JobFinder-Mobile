@@ -26,9 +26,9 @@ abstract class JobFinderDatabase : RoomDatabase() {
                 Room.databaseBuilder(
                     context.applicationContext,
                     JobFinderDatabase::class.java,
-                    "job_finder.db"
+                    "job_finder.db"              // 👈 DB file name in /data/data
                 )
-                    .createFromAsset("database/job_finder.db")
+                    .createFromAsset("database/job_finder.db")  // 👈 asset path
                     .build()
                     .also { INSTANCE = it }
             }

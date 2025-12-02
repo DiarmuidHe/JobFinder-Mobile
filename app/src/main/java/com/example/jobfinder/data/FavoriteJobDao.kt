@@ -10,12 +10,12 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface FavoriteJobDao {
 
-    @Query("SELECT * FROM favorite_job")
-    fun getFavoriteJobs(): Flow<List<FavoriteJob>>
+    @Query("SELECT * FROM favorite_job ORDER BY id DESC")
+    fun getFavoriteJobs(): kotlinx.coroutines.flow.Flow<List<FavoriteJob>>
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertFavoriteJob(favoriteJob: FavoriteJob)
 
-    @Query("DELETE FROM favorite_job WHERE jobId = :jobId")
+    @Query("DELETE FROM favorite_job WHERE job_id = :jobId")
     suspend fun deleteFavoriteJob(jobId: String)
 }

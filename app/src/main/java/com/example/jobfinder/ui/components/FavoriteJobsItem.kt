@@ -21,7 +21,7 @@ fun FavoriteJobsItem(
     ) {
         items(
             items = favorites,
-            key = { it.id }
+            key = { it.jobId }
         ) { favorite ->
             JobItem(
                 jobTitle = favorite.title,

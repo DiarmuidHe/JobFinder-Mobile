@@ -15,24 +15,22 @@ import com.example.jobfinder.model.Job
 
 @Composable
 fun JobsListItem(
-    modifier: Modifier = Modifier,
     jobs: List<Job>,
-    onJobSelected: (Job) -> Unit
+    onJobSelected: (Job) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     LazyColumn(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(dimensionResource(id = R.dimen.padding_large)),
+        modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.padding_small))
     ) {
         items(jobs) { job ->
-            Row(modifier = Modifier
-                .clickable { onJobSelected(job) }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onJobSelected(job) }
+                    .padding(dimensionResource(id = R.dimen.padding_small))
             ) {
-                JobInfoItem(
-                    modifier = Modifier,
-                    job = job
-                )
+                JobInfoItem(job = job)
             }
         }
     }

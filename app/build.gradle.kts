@@ -64,7 +64,12 @@ dependencies {
 
     // Material 3
     implementation(libs.androidx.compose.material3)
-    implementation(libs.androidx.material3.android) // optional, Android-specific M3
+    // You can keep this if you really need the android artifact, otherwise it’s optional:
+    implementation(libs.androidx.material3.android)
+
+    // ICONS – add BOTH core and extended (safe & simple)
+    implementation("androidx.compose.material:material-icons-core")
+    implementation("androidx.compose.material:material-icons-extended")
 
     // Google Fonts
     implementation(libs.androidx.ui.text.google.fonts)
@@ -75,14 +80,16 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
 
     // --- Networking: Retrofit + OkHttp + Kotlinx Serialization ---
-    implementation(libs.retrofit)                    // 2.11.0 (from your toml)
-    implementation(libs.okhttp)                      // 4.12.0 -> safe with Kotlin 2.0.21
-    implementation(libs.kotlinx.serialization)       // JSON
+    implementation(libs.retrofit)
+    implementation(libs.okhttp)
+    implementation(libs.kotlinx.serialization)
     implementation(libs.kotlinx.serialization.converter)
 
     // --- Room (with KSP) ---
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.material3)
+
     ksp(libs.androidx.room.compiler)
 
     // --- Coil (images) ---

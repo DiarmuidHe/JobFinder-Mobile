@@ -1,5 +1,6 @@
 package com.example.jobfinder.ui
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -18,7 +19,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import android.util.Log
+
 /**
  * ViewModel for JobFinder app
  */
@@ -72,30 +73,45 @@ class JobFinderViewModel(
             }
         }
 
-    private fun searchJobs(searchString: String) =
-        viewModelScope.launch {
-            jobRepository.getJobsByQuery("") // force "all jobs"
-                .collect { jobs ->
-                    android.util.Log.d("JobFinderVM", "DEBUG all jobs -> ${jobs.size}")
-                    _uiState.update { state ->
-                        state.copy(
-                            jobs = jobs,
-                            isSearching = false
-                        )
-                    }
+    // CHANGED: make this suspend instead of launching a new coroutine inside
+    private suspend fun searchJobs(searchString: String) {
+        jobRepository.getJobsByQuery(query = searchString)
+            .collect { jobs ->
+                Log.d("JobFinderVM", "search '$searchString' -> ${jobs.size} jobs")
+                _uiState.update { state ->
+                    state.copy(
+                        jobs = jobs,
+                        isSearching = false       // done searching
+                    )
                 }
-        }
+            }
+    }
 
-    // ---------------- SELECTED JOB ----------------
+    // ---------------- SELECTED JOB / DETAIL ----------------
 
+    // CHANGED: when a job is clicked, also show the detail view
     fun onJobClick(job: Job) {
         _uiState.update { state ->
-            state.copy(selectedJob = job)
+            state.copy(
+                selectedJob = job,
+                isJobDetailVisible = true        // <--- OPEN DETAIL
+            )
         }
     }
 
-    // ---------------- FAVORITES ----------------
+    // NEW: call this when the detail screen/bottom sheet is dismissed
+    fun onJobDetailDismissed() {
+        _uiState.update { state ->
+            state.copy(
+                selectedJob = null,
+                isJobDetailVisible = false        // <--- CLOSE DETAIL
+            )
+        }
+    }
 
+    // ---------------- FAVORITES (LIST-LEVEL) ----------------
+
+    // unchanged: used when you already have a FavoriteJob object (e.g. in the favorites list)
     fun isJobFavorite(favoriteJob: FavoriteJob): Boolean =
         _uiState.value.favoriteJobs.any { favorite ->
             favorite.jobId == favoriteJob.jobId
@@ -126,9 +142,45 @@ class JobFinderViewModel(
     private fun updateFavoriteJobs() =
         viewModelScope.launch {
             val favorites = favoriteJobRepository.getFavoriteJobs().first()
+            Log.d("JobFinderVM", "Favorites from DB: ${favorites.map { it.jobId }}")
             _uiState.update { state ->
                 state.copy(favoriteJobs = favorites)
             }
+        }
+
+    fun isFavoriteButtonFilled(favoriteJob: FavoriteJob): Boolean {
+        return uiState.value.favoriteJobs.any { it.jobId == favoriteJob.jobId }
+    }
+
+    // ---------------- FAVORITES (DETAIL SCREEN) ----------------
+    // NEW: same idea, but using a Job instead of FavoriteJob so the detail screen can use it directly.
+
+    fun isJobFavorite(job: Job): Boolean =
+        _uiState.value.favoriteJobs.any { favorite ->
+            favorite.jobId == job.id
+        }
+
+    fun toggleFavoriteForJob(job: Job) =
+        viewModelScope.launch {
+            Log.d("JobFinderVM", "toggleFavoriteForJob called for job.id=${job.id}")
+            val isFavorite = isJobFavorite(job)
+
+            if (isFavorite) {
+                Log.d("JobFinderVM", "Currently favorite -> deleting")
+                favoriteJobRepository.deleteFavoriteJob(job.id)
+            } else {
+                Log.d("JobFinderVM", "Currently NOT favorite -> inserting")
+                favoriteJobRepository.insertFavoriteJob(
+                    FavoriteJob(
+                        jobId = job.id,
+                        title = job.title,
+                        company = job.company,
+                        location = job.location
+                    )
+                )
+            }
+
+            updateFavoriteJobs()
         }
 
     // ---------------- ONBOARDING ----------------

@@ -10,12 +10,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import com.example.jobfinder.R
 import com.example.jobfinder.model.Job
@@ -26,85 +28,70 @@ import com.example.jobfinder.ui.components.JobSearchTitleItem
 import com.example.jobfinder.ui.components.JobsListItem
 import com.example.jobfinder.ui.components.FavoriteJobsItem
 import com.example.jobfinder.ui.screens.WelcomeScreen
+// HomeScreen.kt
 
 @Composable
 fun HomeScreen(
-    modifier: Modifier = Modifier,
     searchText: String,
     jobs: List<Job>,
-    favorites: List<FavoriteJob>,
     isSearching: Boolean,
     onSearchTextChange: (String) -> Unit,
-    onJobSelected: (Job) -> Unit,
     selectedJob: Job?,
+    onJobSelected: (Job) -> Unit,
+    favorites: List<FavoriteJob>,
     onFavoriteJobClicked: (FavoriteJob) -> Unit,
     isFavoriteButtonFilled: (FavoriteJob) -> Boolean,
     isOnboardingVisible: Boolean,
+
+    // NEW:
+    isJobDetailVisible: Boolean,
+    onJobDetailDismissed: () -> Unit,
+    onToggleFavoriteFromDetail: (Job) -> Unit,
+    isJobFavorite: (Job) -> Boolean
 ) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+    Box(
+        modifier = Modifier.fillMaxSize()
     ) {
-
-        // Loading indicator
-        if (isSearching) {
-            Box(modifier = Modifier.fillMaxSize()) {
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+        // Your existing content: onboarding, search, results, favorites, etc.
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(dimensionResource(id = R.dimen.padding_medium))
+        ) {
+            if (isOnboardingVisible) {
+                WelcomeScreen()
             }
-        }
 
-        // Search bar
-        JobSearchTextField(
-            searchText = searchText,
-            onSearchTextChange = onSearchTextChange
-        )
+            JobSearchTextField(
+                searchText = searchText,
+                onSearchTextChange = onSearchTextChange
+            )
 
-        // Show onboarding
-        if (isOnboardingVisible) {
-            WelcomeScreen()
-        }
-
-        // MAIN CONTENT
-        if (searchText.isBlank()) {
-            AnimatedVisibility(visible = true) {
-                Column(verticalArrangement = Arrangement.SpaceBetween) {
-                    if (favorites.isEmpty()) {
-                        Text(
-                            text = "No Saved Jobs",
-                            modifier = Modifier.align(Alignment.CenterHorizontally),
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                    } else {
-                        JobSearchTitleItem(text = "Saved Jobs")
-                        FavoriteJobsItem(
-                            favorites = favorites,
-                            onFavoriteJobClicked = onFavoriteJobClicked,
-                            isFavoriteButtonFilled = isFavoriteButtonFilled,
-                            modifier = Modifier.animateEnterExit(
-                                enter = expandVertically(animationSpec = tween(500)),
-                                exit = shrinkVertically()
-                            )
-                        )
-                    }
-                }
-            }
-        } else {
-            // SEARCH RESULTS LIST
-            AnimatedVisibility(visible = true){
+            if (isSearching) {
+                CircularProgressIndicator(
+                    modifier = Modifier
+                        .padding(top = dimensionResource(id = R.dimen.padding_large))
+                        .align(Alignment.CenterHorizontally)
+                )
+            } else {
                 JobsListItem(
                     jobs = jobs,
-                    onJobSelected = onJobSelected,
-                    modifier = Modifier.animateEnterExit(
-                        enter = expandVertically(
-                            animationSpec = tween(500),
-                            expandFrom = Alignment.Top
-                        ) + fadeIn(initialAlpha = 0.3f),
-                        exit = shrinkVertically()
-                    )
+                    onJobSelected = onJobSelected
                 )
-            }
 
+                // favorites section...
+            }
+        }
+
+        // NEW: detail view overlay
+        if (isJobDetailVisible && selectedJob != null) {
+
+            JobDetailSheet(
+                job = selectedJob,
+                onDismiss = onJobDetailDismissed,
+                onToggleFavorite = { onToggleFavoriteFromDetail(selectedJob) },
+                isFavorite = isJobFavorite(selectedJob)
+            )
         }
     }
 }
