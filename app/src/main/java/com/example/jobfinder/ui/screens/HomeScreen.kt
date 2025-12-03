@@ -63,25 +63,6 @@ fun HomeScreen(
                     jobs = jobs,
                     onJobSelected = onJobSelected
                 )
-
-                AnimatedVisibility(
-                    visible = favorites.isNotEmpty(),
-                    enter = fadeIn(animationSpec = tween(300)) +
-                            expandVertically(animationSpec = tween(300)),
-                    exit = shrinkVertically(animationSpec = tween(200))
-                ) {
-                    Column(
-                        modifier = Modifier.padding(
-                            top = dimensionResource(id = R.dimen.padding_large)
-                        )
-                    ) {
-                        FavoriteJobsItem(
-                            favorites = favorites,
-                            isFavoriteButtonFilled = isFavoriteButtonFilled,
-                            onFavoriteJobClicked = onFavoriteJobClicked
-                        )
-                    }
-                }
             }
         }
     }
