@@ -79,7 +79,6 @@ fun FavoriteIconPreview() {
                 onFavoriteJobClicked = {},
                 isFavoriteButtonFilled = { true },
                 favoriteJob = FavoriteJob(
-                    id = 0,
                     jobId = "123",
                     title = "Android Developer",
                     company = "Example Corp",

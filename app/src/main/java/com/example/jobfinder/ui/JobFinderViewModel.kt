@@ -41,10 +41,6 @@ class JobFinderViewModel(
             updateFavoriteJobs()
 
             // onboarding
-            if (!userPreferencesRepository.isOnboardingVisible.first()) {
-                userPreferencesRepository.saveOnboardingVisibilityBooleanPreference(true)
-                setOnboardingVisible()
-            }
         }
     }
 
@@ -183,14 +179,6 @@ class JobFinderViewModel(
             updateFavoriteJobs()
         }
 
-    // ---------------- ONBOARDING ----------------
-
-    private fun setOnboardingVisible() =
-        viewModelScope.launch {
-            _uiState.update { state ->
-                state.copy(isOnboardingVisible = true)
-            }
-        }
 
     // ---------------- FACTORY ----------------
 

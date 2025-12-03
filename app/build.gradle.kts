@@ -70,7 +70,7 @@ dependencies {
     // ICONS – add BOTH core and extended (safe & simple)
     implementation("androidx.compose.material:material-icons-core")
     implementation("androidx.compose.material:material-icons-extended")
-
+    implementation("androidx.compose.material3:material3:1.2.1")
     // Google Fonts
     implementation(libs.androidx.ui.text.google.fonts)
 
@@ -89,6 +89,7 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.navigation.compose)
 
     ksp(libs.androidx.room.compiler)
 
