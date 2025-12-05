@@ -102,13 +102,6 @@ fun JobFinderApp(
                     onSearchTextChange = { viewModel.onSearchTextChange(it) },
                     onJobSelected = { job ->
                         navController.navigate(Screen.JobDetail.createRoute(job.id))
-                    },
-                    favorites = uiState.favoriteJobs,
-                    onFavoriteJobClicked = { favorite ->
-                        viewModel.toggleFavorite(favorite)
-                    },
-                    isFavoriteButtonFilled = { favorite ->
-                        viewModel.isFavoriteButtonFilled(favorite)
                     }
                 )
             }

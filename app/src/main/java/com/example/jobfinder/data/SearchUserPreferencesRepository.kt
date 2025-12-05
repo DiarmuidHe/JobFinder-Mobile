@@ -18,7 +18,6 @@ class SearchUserPreferencesRepository(
 ) {
     private companion object {
         val SEARCH_STRING = stringPreferencesKey("search_string")
-        val ONBOARDING_VISIBLE = booleanPreferencesKey("onboarding_visible")
         const val TAG = "UserPreferencesRepo"
     }
 
@@ -27,17 +26,6 @@ class SearchUserPreferencesRepository(
             mutablePreferences[SEARCH_STRING] = searchString
         }
     }
-
-    suspend fun saveOnboardingVisibilityBooleanPreference(isOnboardingVisible: Boolean) {
-        dataStore.edit { mutablePreferences ->
-            mutablePreferences[ONBOARDING_VISIBLE] = isOnboardingVisible
-        }
-    }
-
-    val isOnboardingVisible: Flow<Boolean> = dataStore.data
-        .map { preferences ->
-            preferences[ONBOARDING_VISIBLE] ?: false
-        }
 
     val searchString: Flow<String> = dataStore.data
         .catch {

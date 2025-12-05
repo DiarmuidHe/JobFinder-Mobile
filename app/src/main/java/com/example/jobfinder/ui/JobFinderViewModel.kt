@@ -40,7 +40,6 @@ class JobFinderViewModel(
             // load favorites
             updateFavoriteJobs()
 
-            // onboarding
         }
     }
 
@@ -61,15 +60,9 @@ class JobFinderViewModel(
             delay(500)
 
             searchJobs(text)
-
-            if (userPreferencesRepository.isOnboardingVisible.first()) {
-                _uiState.update { state ->
-                    state.copy(isOnboardingVisible = false)
-                }
-            }
         }
 
-    // CHANGED: make this suspend instead of launching a new coroutine inside
+    // suspend so we can call it directly from the same coroutine
     private suspend fun searchJobs(searchString: String) {
         jobRepository.getJobsByQuery(query = searchString)
             .collect { jobs ->
@@ -85,29 +78,27 @@ class JobFinderViewModel(
 
     // ---------------- SELECTED JOB / DETAIL ----------------
 
-    // CHANGED: when a job is clicked, also show the detail view
     fun onJobClick(job: Job) {
         _uiState.update { state ->
             state.copy(
                 selectedJob = job,
-                isJobDetailVisible = true        // <--- OPEN DETAIL
+                isJobDetailVisible = true        // OPEN DETAIL
             )
         }
     }
 
-    // NEW: call this when the detail screen/bottom sheet is dismissed
     fun onJobDetailDismissed() {
         _uiState.update { state ->
             state.copy(
                 selectedJob = null,
-                isJobDetailVisible = false        // <--- CLOSE DETAIL
+                isJobDetailVisible = false       // CLOSE DETAIL
             )
         }
     }
 
     // ---------------- FAVORITES (LIST-LEVEL) ----------------
 
-    // unchanged: used when you already have a FavoriteJob object (e.g. in the favorites list)
+    // used when you already have a FavoriteJob object (e.g. in the favorites list)
     fun isJobFavorite(favoriteJob: FavoriteJob): Boolean =
         _uiState.value.favoriteJobs.any { favorite ->
             favorite.jobId == favoriteJob.jobId
@@ -121,13 +112,10 @@ class JobFinderViewModel(
                 // delete using its jobId
                 favoriteJobRepository.deleteFavoriteJob(favoriteJob.jobId)
             } else {
-                // insert directly
+                // insert a new row – make sure all NOT NULL fields are filled
                 favoriteJobRepository.insertFavoriteJob(
-                    FavoriteJob(
-                        jobId = favoriteJob.jobId,
-                        title = favoriteJob.title,
-                        company = favoriteJob.company,
-                        location = favoriteJob.location
+                    favoriteJob.copy(
+                        id = null // let Room autogenerate ID
                     )
                 )
             }
@@ -149,7 +137,7 @@ class JobFinderViewModel(
     }
 
     // ---------------- FAVORITES (DETAIL SCREEN) ----------------
-    // NEW: same idea, but using a Job instead of FavoriteJob so the detail screen can use it directly.
+    // Same idea, but using a Job instead of FavoriteJob so the detail screen can use it directly.
 
     fun isJobFavorite(job: Job): Boolean =
         _uiState.value.favoriteJobs.any { favorite ->
@@ -171,14 +159,16 @@ class JobFinderViewModel(
                         jobId = job.id,
                         title = job.title,
                         company = job.company,
-                        location = job.location
+                        location = job.location,
+                        description = job.description,
+                        skills = job.skills,
+                        image = job.image
                     )
                 )
             }
 
             updateFavoriteJobs()
         }
-
 
     // ---------------- FACTORY ----------------
 

@@ -14,8 +14,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import com.example.jobfinder.R
 import com.example.jobfinder.model.FavoriteJob
-import com.example.jobfinder.ui.components.buttons.FavoriteButton
+//import com.example.jobfinder.ui.components.buttons.FavoriteButton
 import androidx.compose.ui.unit.dp
+import com.example.jobfinder.ui.components.buttons.FavoriteButton
+
 @Composable
 fun JobItem(
     modifier: Modifier = Modifier,

@@ -20,10 +20,13 @@ fun JobsListItem(
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
-        modifier = modifier,
+        modifier = modifier.padding(dimensionResource(id = R.dimen.padding_medium)),
         verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.padding_small))
     ) {
-        items(jobs) { job ->
+        items(
+            items = jobs,
+            key = { it.id }
+        ) { job ->
             Row(
                 modifier = Modifier
                     .fillMaxWidth()

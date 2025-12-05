@@ -82,8 +82,12 @@ fun FavoriteIconPreview() {
                     jobId = "123",
                     title = "Android Developer",
                     company = "Example Corp",
-                    location = "Remote"
+                    location = "Remote",
+                    description = "Build and maintain Android applications using Kotlin and Jetpack libraries.",
+                    skills = "Kotlin, Android Studio, Jetpack Compose, REST APIs, Git",
+                    image = "https://moynecs.ie/uploads/7/3/9/2/73928041/6013364_orig.jpg"
                 )
+
             )
         }
     }

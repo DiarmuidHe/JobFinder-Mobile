@@ -11,11 +11,15 @@ import kotlinx.coroutines.flow.Flow
 interface FavoriteJobDao {
 
     @Query("SELECT * FROM favorite_job ORDER BY id DESC")
-    fun getFavoriteJobs(): kotlinx.coroutines.flow.Flow<List<FavoriteJob>>
+    fun getFavoriteJobs(): Flow<List<FavoriteJob>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertFavoriteJob(favoriteJob: FavoriteJob)
 
     @Query("DELETE FROM favorite_job WHERE job_id = :jobId")
     suspend fun deleteFavoriteJob(jobId: String)
+
+    // Optional but very useful to check if a job is already favourited
+    @Query("SELECT * FROM favorite_job WHERE job_id = :jobId LIMIT 1")
+    fun getFavoriteJobByJobId(jobId: String): Flow<FavoriteJob?>
 }

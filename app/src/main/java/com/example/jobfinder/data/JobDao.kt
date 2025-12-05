@@ -10,9 +10,11 @@ interface JobDao {
 
     @Query("""
         SELECT * FROM job
-        WHERE LOWER(title)    LIKE '%' || LOWER(:query) || '%'
-           OR LOWER(company)  LIKE '%' || LOWER(:query) || '%'
-           OR LOWER(location) LIKE '%' || LOWER(:query) || '%'
+        WHERE LOWER(title)       LIKE '%' || LOWER(:query) || '%'
+           OR LOWER(company)     LIKE '%' || LOWER(:query) || '%'
+           OR LOWER(location)    LIKE '%' || LOWER(:query) || '%'
+           OR LOWER(description) LIKE '%' || LOWER(:query) || '%'
+           OR LOWER(skills)      LIKE '%' || LOWER(:query) || '%'
         ORDER BY title ASC
     """)
     fun getJobsByQuery(query: String): Flow<List<Job>>

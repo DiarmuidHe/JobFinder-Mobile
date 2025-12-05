@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface JobRepository {
     fun getJobsByQuery(query: String): Flow<List<Job>>
+    fun getAllJobs(): Flow<List<Job>>
 }
 
 class OfflineJobRepository(
@@ -17,4 +18,7 @@ class OfflineJobRepository(
         } else {
             jobDao.getJobsByQuery(query)
         }
+
+    override fun getAllJobs(): Flow<List<Job>> =
+        jobDao.getAllJobs()
 }

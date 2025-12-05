@@ -52,7 +52,7 @@ fun JobSearchTextField(
                 .border(
                     width = 2.dp,
                     brush = Brush.horizontalGradient(
-                        listOf(Color.Cyan, Color.Blue)
+                        listOf(Color.Black, Color.Black)
                     ),
                     shape = CircleShape
                 )
