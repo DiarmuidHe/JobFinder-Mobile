@@ -1,6 +1,7 @@
 // JobFinderApp.kt
 package com.example.jobfinder.ui.screens
 
+import android.net.Uri
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -48,6 +49,12 @@ sealed class Screen(val route: String) {
     data object ResumeCamera : Screen("resumeCamera/{jobId}") {
         fun createRoute(jobId: String) = "resumeCamera/$jobId"
     }
+
+    data object FinalApply : Screen("finalApply/{jobId}/{imageUri}") {
+        fun createRoute(jobId: String, imageUri: String) =
+            "finalApply/$jobId/$imageUri"
+    }
+
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -125,6 +132,7 @@ fun JobFinderApp(
                                 )
                                 Screen.JobDetail -> { /* not in bottom bar */ }
                                 Screen.ResumeCamera -> TODO()
+                                Screen.FinalApply -> TODO()
                             }
                         },
                         label = {
@@ -135,6 +143,7 @@ fun JobFinderApp(
                                     Screen.Notifications -> "Notifications"
                                     Screen.JobDetail -> ""
                                     Screen.ResumeCamera -> TODO()
+                                    Screen.FinalApply -> TODO()
                                 }
                             )
                         },
@@ -215,16 +224,57 @@ fun JobFinderApp(
                 )
             ) { backStackEntry ->
                 val jobId = backStackEntry.arguments?.getString("jobId")!!
+
                 ResumeCameraScreen(
                     jobId = jobId,
                     onBack = { navController.popBackStack() },
                     onPhotoCaptured = { uri ->
-                        // TODO: Save URI to DB, upload, or mark job as applied.
-                        // For now just go back to job detail:
-                        navController.popBackStack()
+                        // encode URI so it’s safe in the route
+                        val encodedUri = Uri.encode(uri.toString())
+                        navController.navigate(Screen.FinalApply.createRoute(jobId, encodedUri))
                     }
                 )
             }
+            composable(
+                route = Screen.FinalApply.route,
+                arguments = listOf(
+                    navArgument("jobId") { type = NavType.StringType },
+                    navArgument("imageUri") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                val jobId = backStackEntry.arguments?.getString("jobId")!!
+                val imageUriStr = backStackEntry.arguments?.getString("imageUri")!!
+                val imageUri = Uri.parse(Uri.decode(imageUriStr))
+
+                // if you want the job info to show “Applying for XYZ”
+                val job: Job? = uiState.jobs.firstOrNull { it.id == jobId }
+
+                FinalApplyScreen(
+                    job = job,
+                    imageUri = imageUri,
+                    onCancel = {
+                        // back to Home, clearing back stack
+                        navController.navigate(Screen.Home.route) {
+                            popUpTo(Screen.Home.route) { inclusive = true }
+                            launchSingleTop = true
+                        }
+                    },
+                    onRetake = {
+                        // go back to camera
+                        navController.popBackStack()
+                    },
+                    onApply = {
+                        // you could mark as applied here in DB if you want
+                        // viewModel.markJobApplied(jobId)
+
+                        navController.navigate(Screen.Home.route) {
+                            popUpTo(Screen.Home.route) { inclusive = true }
+                            launchSingleTop = true
+                        }
+                    }
+                )
+            }
+
         }
     }
 }

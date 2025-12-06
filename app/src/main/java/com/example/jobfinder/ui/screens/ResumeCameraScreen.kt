@@ -138,7 +138,7 @@ fun ResumeCameraScreen(
                     }
                 }
 
-                // ✅ PASS THE COLLECTION URI, NOT A ROW URI
+                // PASS THE COLLECTION URI, NOT A ROW URI
                 val outputOptions = ImageCapture.OutputFileOptions.Builder(
                     context.contentResolver,
                     MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
