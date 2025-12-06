@@ -32,7 +32,8 @@ fun JobDetailScreen(
     job: Job,
     isFavorite: Boolean,
     onBackClick: () -> Unit,
-    onToggleFavorite: () -> Unit
+    onToggleFavorite: () -> Unit,
+    onApplyClick: () -> Unit
 ) {
     val scrollState = rememberScrollState()
 
@@ -166,7 +167,7 @@ fun JobDetailScreen(
 
                 // Apply button (no DB logic yet, just UI)
                 Button(
-                    onClick = { /* TODO: hook into job_applied */ },
+                    onClick = onApplyClick,
                     modifier = Modifier
                         .weight(1f)
                         .height(48.dp),

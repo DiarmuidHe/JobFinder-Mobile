@@ -39,9 +39,14 @@ import com.example.jobfinder.ui.screens.NotificationDashboardScreen
 sealed class Screen(val route: String) {
     data object Home : Screen("home")
     data object Favorites : Screen("favorites")
-    data object Notifications : Screen("notifications")      // new screen
+    data object Notifications : Screen("notifications")
     data object JobDetail : Screen("jobDetail/{jobId}") {
         fun createRoute(jobId: String) = "jobDetail/$jobId"
+    }
+
+    // resume camera screen
+    data object ResumeCamera : Screen("resumeCamera/{jobId}") {
+        fun createRoute(jobId: String) = "resumeCamera/$jobId"
     }
 }
 
@@ -119,6 +124,7 @@ fun JobFinderApp(
                                     contentDescription = "Notifications"
                                 )
                                 Screen.JobDetail -> { /* not in bottom bar */ }
+                                Screen.ResumeCamera -> TODO()
                             }
                         },
                         label = {
@@ -128,6 +134,7 @@ fun JobFinderApp(
                                     Screen.Favorites -> "Favorites"
                                     Screen.Notifications -> "Notifications"
                                     Screen.JobDetail -> ""
+                                    Screen.ResumeCamera -> TODO()
                                 }
                             )
                         },
@@ -194,7 +201,28 @@ fun JobFinderApp(
                     job = job,
                     isFavorite = viewModel.isJobFavorite(job),
                     onBackClick = { navController.popBackStack() },
-                    onToggleFavorite = { viewModel.toggleFavoriteForJob(job) }
+                    onToggleFavorite = { viewModel.toggleFavoriteForJob(job) },
+                    onApplyClick = {
+                        navController.navigate(Screen.ResumeCamera.createRoute(job.id))
+                    }
+                )
+            }
+            // CAMERA FOR RESUME
+            composable(
+                route = Screen.ResumeCamera.route,
+                arguments = listOf(
+                    navArgument("jobId") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                val jobId = backStackEntry.arguments?.getString("jobId")!!
+                ResumeCameraScreen(
+                    jobId = jobId,
+                    onBack = { navController.popBackStack() },
+                    onPhotoCaptured = { uri ->
+                        // TODO: Save URI to DB, upload, or mark job as applied.
+                        // For now just go back to job detail:
+                        navController.popBackStack()
+                    }
                 )
             }
         }
