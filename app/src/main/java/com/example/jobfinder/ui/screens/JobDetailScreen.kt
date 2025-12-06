@@ -41,7 +41,7 @@ fun JobDetailScreen(
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = "Job Detail",
+                        text = job.company,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -112,12 +112,7 @@ fun JobDetailScreen(
                             overflow = TextOverflow.Ellipsis
                         )
 
-                        Text(
-                            text = job.company,
-                            style = MaterialTheme.typography.bodyMedium,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
+
 
                         Spacer(modifier = Modifier.height(4.dp))
 
