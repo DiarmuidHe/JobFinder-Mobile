@@ -29,40 +29,42 @@ class JobFinderViewModel(
     private val userPreferencesRepository: SearchUserPreferencesRepository
 ) : ViewModel() {
 
+    // UI state exposed as StateFlow to the UI
     private val _uiState = MutableStateFlow(JobFinderUiState())
     val uiState = _uiState.asStateFlow()
 
     init {
         viewModelScope.launch {
-            // restore last search
+            // Restore last search text from DataStore
             onSearchTextChange(userPreferencesRepository.searchString.first())
 
-            // load favorites
+            // Load existing favorites from DB
             updateFavoriteJobs()
-
         }
     }
 
-    // ---------------- SEARCH ----------------
+    //  SEARCH
 
+    // Called whenever the search text changes
     fun onSearchTextChange(text: String) =
         viewModelScope.launch {
             _uiState.update { state ->
                 state.copy(
                     searchText = text,
-                    isSearching = true         // mark searching started
+                    isSearching = true         // mark searching as started
                 )
             }
 
+            // Persist the last search query
             userPreferencesRepository.saveSearchStringPreference(text)
 
-            // small debounce
+            // Small debounce so we don't search on every keystroke immediately
             delay(500)
 
             searchJobs(text)
         }
 
-    // suspend so we can call it directly from the same coroutine
+    // Runs the job search and updates the UI state
     private suspend fun searchJobs(searchString: String) {
         jobRepository.getJobsByQuery(query = searchString)
             .collect { jobs ->
@@ -70,59 +72,64 @@ class JobFinderViewModel(
                 _uiState.update { state ->
                     state.copy(
                         jobs = jobs,
-                        isSearching = false       // done searching
+                        isSearching = false       // search finished
                     )
                 }
             }
     }
 
-    // ---------------- SELECTED JOB / DETAIL ----------------
+    //  SELECTED JOB / DETAIL
 
+    // Open job detail for the selected job
     fun onJobClick(job: Job) {
         _uiState.update { state ->
             state.copy(
                 selectedJob = job,
-                isJobDetailVisible = true        // OPEN DETAIL
+                isJobDetailVisible = true        // show detail screen
             )
         }
     }
 
+    // Close job detail screen
     fun onJobDetailDismissed() {
         _uiState.update { state ->
             state.copy(
                 selectedJob = null,
-                isJobDetailVisible = false       // CLOSE DETAIL
+                isJobDetailVisible = false       // hide detail screen
             )
         }
     }
 
-    // ---------------- FAVORITES (LIST-LEVEL) ----------------
+    //FAVORITES (LIST & CARD)
 
-    // used when you already have a FavoriteJob object (e.g. in the favorites list)
+    // Check if a FavoriteJob is in the current favorites list
     fun isJobFavorite(favoriteJob: FavoriteJob): Boolean =
         _uiState.value.favoriteJobs.any { favorite ->
             favorite.jobId == favoriteJob.jobId
         }
 
+    // Toggle favorite from a FavoriteJob item (e.g. favorites list)
     fun toggleFavorite(favoriteJob: FavoriteJob) =
         viewModelScope.launch {
             val isFavorite = isJobFavorite(favoriteJob)
 
             if (isFavorite) {
-                // delete using its jobId
+                // Remove from favorites using the jobId
                 favoriteJobRepository.deleteFavoriteJob(favoriteJob.jobId)
             } else {
-                // insert a new row – make sure all NOT NULL fields are filled
+                // Insert a new favorite (let Room auto-generate the ID)
                 favoriteJobRepository.insertFavoriteJob(
                     favoriteJob.copy(
-                        id = null // let Room autogenerate ID
+                        id = null
                     )
                 )
             }
 
+            // Refresh favorites from DB
             updateFavoriteJobs()
         }
 
+    // Reload favorites from DB and update UI state
     private fun updateFavoriteJobs() =
         viewModelScope.launch {
             val favorites = favoriteJobRepository.getFavoriteJobs().first()
@@ -132,12 +139,13 @@ class JobFinderViewModel(
             }
         }
 
+    // Helper for the favorite button in job cards
     fun isFavoriteButtonFilled(favoriteJob: FavoriteJob): Boolean {
         return uiState.value.favoriteJobs.any { it.jobId == favoriteJob.jobId }
     }
 
-    // ---------------- FAVORITES (DETAIL SCREEN) ----------------
-    // Same idea, but using a Job instead of FavoriteJob so the detail screen can use it directly.
+    // FAVORITES (DETAIL SCREEN)
+    // Same logic as above but starting from a Job instead of FavoriteJob
 
     fun isJobFavorite(job: Job): Boolean =
         _uiState.value.favoriteJobs.any { favorite ->
@@ -167,19 +175,45 @@ class JobFinderViewModel(
                 )
             }
 
+            // Refresh favorites after change
             updateFavoriteJobs()
         }
 
-    // ---------------- FACTORY ----------------
+    // APPLIED STATE
+
+    // Mark a job as applied in both DB and in-memory UI state
+    fun markJobAsApplied(jobId: String) =
+        viewModelScope.launch {
+            // Update DB record
+            jobRepository.updateApplied(jobId, true)
+
+            // Update current UI state so the change is reflected instantly
+            _uiState.update { state ->
+                state.copy(
+                    jobs = state.jobs.map { job ->
+                        if (job.id == jobId) job.copy(applied = true) else job
+                    },
+                    selectedJob = state.selectedJob?.let { selected ->
+                        if (selected.id == jobId) selected.copy(applied = true) else selected
+                    }
+                )
+            }
+        }
+
+    //FACTORY
 
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val application =
                     (this[ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY] as JobFinderApplication)
+
+                // Get dependencies from Application
                 val jobRepository = application.jobRepository
                 val favoriteJobRepository = application.favoriteJobRepository
                 val userPreferencesRepository = application.userPreferencesRepository
+
+                // Create ViewModel instance with injected repositories
                 JobFinderViewModel(
                     jobRepository = jobRepository,
                     favoriteJobRepository = favoriteJobRepository,

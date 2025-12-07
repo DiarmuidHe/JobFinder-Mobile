@@ -27,12 +27,13 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun JobSearchTextField(
     modifier: Modifier = Modifier,
-    searchText: String,
-    onSearchTextChange: (String) -> Unit
+    searchText: String,                       // Current text entered by the user
+    onSearchTextChange: (String) -> Unit      // Callback triggered when text changes
 ) {
+    // Tracks user interactions (click, focus, etc.)
     val interactionSource = remember { MutableInteractionSource() }
-    val isFocused by interactionSource.collectIsFocusedAsState()
 
+    // Rounded card container for the search field
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -40,19 +41,19 @@ fun JobSearchTextField(
         shape = CircleShape
     ) {
         TextField(
-            value = searchText,
+            value = searchText,                // Text shown inside the field
             onValueChange = onSearchTextChange,
             interactionSource = interactionSource,
-            placeholder = { Text("Search jobs…") },
+            placeholder = { Text("Search jobs…") },  // Hint text
             colors = TextFieldDefaults.colors(
                 unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
             ),
             modifier = Modifier
                 .fillMaxWidth()
                 .border(
-                    width = 2.dp,
+                    width = 2.dp,              // Subtle border around the search box
                     brush = Brush.horizontalGradient(
-                        listOf(Color.Black, Color.Black)
+                        listOf(Color.DarkGray, Color.DarkGray)
                     ),
                     shape = CircleShape
                 )

@@ -20,31 +20,31 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import com.example.jobfinder.R
 import com.example.jobfinder.model.FavoriteJob
-import com.example.jobfinder.ui.theme.JobFinderTheme
-import com.example.jobfinder.utils.ThemePreviews
 import com.example.jobfinder.utils.brush
 import com.example.jobfinder.utils.starIconRippleConfiguration
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FavoriteButton(
-    onFavoriteJobClicked: (FavoriteJob) -> Unit,
-    isFavoriteButtonFilled: (FavoriteJob) -> Boolean,
-    favoriteJob: FavoriteJob,
+    onFavoriteJobClicked: (FavoriteJob) -> Unit,          // Called when the star is tapped
+    isFavoriteButtonFilled: (FavoriteJob) -> Boolean,     // Checks if job is already favorited
+    favoriteJob: FavoriteJob,                             // The job this button belongs to
     modifier: Modifier = Modifier
 ) {
+    // Custom ripple effect for the star icon
     CompositionLocalProvider(LocalRippleConfiguration provides starIconRippleConfiguration) {
         IconButton(
             modifier = modifier,
             onClick = {
-                onFavoriteJobClicked(favoriteJob)
-                isFavoriteButtonFilled(favoriteJob)
+                onFavoriteJobClicked(favoriteJob)          // Toggle favorite state
+                isFavoriteButtonFilled(favoriteJob)        // Trigger UI update
             }
         ) {
             Icon(
                 modifier = Modifier
                     .size(dimensionResource(id = R.dimen.icon_standard))
                     .let {
+                        // If the job is favorited, color the star using a brush overlay
                         if (isFavoriteButtonFilled(favoriteJob)) {
                             return@let it
                                 .graphicsLayer(alpha = 0.99f)
@@ -58,6 +58,7 @@ fun FavoriteButton(
                                     }
                                 }
                         }
+                        // Otherwise, show default gray star
                         it
                     },
                 imageVector = Icons.Default.Star,
@@ -68,27 +69,4 @@ fun FavoriteButton(
     }
 }
 
-@ThemePreviews
-@Composable
-fun FavoriteIconPreview() {
-    JobFinderTheme {
-        Surface(
-            color = MaterialTheme.colorScheme.surfaceContainerHigh
-        ) {
-            FavoriteButton(
-                onFavoriteJobClicked = {},
-                isFavoriteButtonFilled = { true },
-                favoriteJob = FavoriteJob(
-                    jobId = "123",
-                    title = "Android Developer",
-                    company = "Example Corp",
-                    location = "Remote",
-                    description = "Build and maintain Android applications using Kotlin and Jetpack libraries.",
-                    skills = "Kotlin, Android Studio, Jetpack Compose, REST APIs, Git",
-                    image = "https://moynecs.ie/uploads/7/3/9/2/73928041/6013364_orig.jpg"
-                )
 
-            )
-        }
-    }
-}

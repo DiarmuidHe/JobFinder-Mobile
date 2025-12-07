@@ -3,6 +3,7 @@ package com.example.jobfinder.model
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
+
 @Entity(tableName = "job")
 data class Job(
     @PrimaryKey
@@ -18,5 +19,8 @@ data class Job(
     val description: String,
     val skills: String,
 
-    val image: String        // URL string added
+    val image: String,
+
+    val applied: Boolean
 )
+

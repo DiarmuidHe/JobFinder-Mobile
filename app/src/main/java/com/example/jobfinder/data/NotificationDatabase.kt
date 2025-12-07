@@ -12,6 +12,7 @@ import com.example.jobfinder.model.NotificationEntry
 )
 abstract class NotificationDatabase : RoomDatabase() {
 
+    // DAO for accessing notification records
     abstract fun notificationDao(): NotificationDao
 
     companion object {
@@ -20,11 +21,15 @@ abstract class NotificationDatabase : RoomDatabase() {
 
         fun getInstance(context: Context): NotificationDatabase {
             return INSTANCE ?: synchronized(this) {
+
+                // Create the Room database for storing notifications
                 Room.databaseBuilder(
                     context.applicationContext,
                     NotificationDatabase::class.java,
-                    "notifications.db"
-                ).build().also { INSTANCE = it }
+                    "notifications.db"   // Local database file name
+                )
+                    .build()
+                    .also { INSTANCE = it }
             }
         }
     }

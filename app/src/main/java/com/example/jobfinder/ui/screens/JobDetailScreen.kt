@@ -29,16 +29,17 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun JobDetailScreen(
-    job: Job,
-    isFavorite: Boolean,
-    onBackClick: () -> Unit,
-    onToggleFavorite: () -> Unit,
-    onApplyClick: () -> Unit
+    job: Job,                        // The job being displayed
+    isFavorite: Boolean,             // Whether this job is already saved
+    onBackClick: () -> Unit,         // Callback when back arrow is pressed
+    onToggleFavorite: () -> Unit,    // Toggles save/unsave state
+    onApplyClick: () -> Unit         // Navigates to apply/resume screen
 ) {
     val scrollState = rememberScrollState()
 
     Scaffold(
         topBar = {
+            // Top app bar showing company name
             CenterAlignedTopAppBar(
                 title = {
                     Text(
@@ -48,6 +49,7 @@ fun JobDetailScreen(
                     )
                 },
                 navigationIcon = {
+                    // Back button
                     IconButton(onClick = onBackClick) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
@@ -62,10 +64,10 @@ fun JobDetailScreen(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
-                .verticalScroll(scrollState)
+                .verticalScroll(scrollState)   // Scroll long descriptions
         ) {
 
-            // ---------- HEADER CARD (grey bar like the mock) ----------
+            // HEADER CARD (logo + title + basic info)
             Card(
                 modifier = Modifier
                     .padding(horizontal = 16.dp, vertical = 12.dp)
@@ -81,7 +83,8 @@ fun JobDetailScreen(
                         .fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Logo circle
+
+                    // Company logo in a circular container
                     Box(
                         modifier = Modifier
                             .size(64.dp)
@@ -101,9 +104,8 @@ fun JobDetailScreen(
 
                     Spacer(modifier = Modifier.width(16.dp))
 
-                    Column(
-                        modifier = Modifier.weight(1f)
-                    ) {
+                    // Job title, location, salary, job type
+                    Column(modifier = Modifier.weight(1f)) {
                         Text(
                             text = job.title,
                             style = MaterialTheme.typography.titleMedium.copy(
@@ -112,8 +114,6 @@ fun JobDetailScreen(
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
-
-
 
                         Spacer(modifier = Modifier.height(4.dp))
 
@@ -141,14 +141,15 @@ fun JobDetailScreen(
                 }
             }
 
-            // ---------- SAVE & APPLY BUTTONS ----------
+            // -SAVE & APPLY BUTTONS
             Row(
                 modifier = Modifier
                     .padding(horizontal = 16.dp, vertical = 8.dp)
                     .fillMaxWidth(),
                 horizontalArrangement = spacedBy(16.dp)
             ) {
-                // Save button
+
+                // Save / Saved (toggle favorite)
                 FilledTonalButton(
                     onClick = onToggleFavorite,
                     modifier = Modifier
@@ -165,7 +166,7 @@ fun JobDetailScreen(
                     Text(if (isFavorite) "Saved" else "Save")
                 }
 
-                // Apply button (no DB logic yet, just UI)
+                // Apply button
                 Button(
                     onClick = onApplyClick,
                     modifier = Modifier
@@ -191,7 +192,10 @@ fun JobDetailScreen(
                         fontWeight = FontWeight.Bold
                     )
                 )
+
                 Spacer(modifier = Modifier.height(8.dp))
+
+                // Main job description block
                 Text(
                     text = job.description,
                     style = MaterialTheme.typography.bodyMedium,
@@ -201,7 +205,7 @@ fun JobDetailScreen(
 
             Divider()
 
-            // ---------- SKILLS ----------
+            // SKILLS
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -213,7 +217,10 @@ fun JobDetailScreen(
                         fontWeight = FontWeight.Bold
                     )
                 )
+
                 Spacer(modifier = Modifier.height(8.dp))
+
+                // Display skills as chips
                 SkillsChips(skillsString = job.skills)
             }
 
@@ -225,11 +232,13 @@ fun JobDetailScreen(
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun SkillsChips(skillsString: String) {
+    // Convert comma-separated list into individual skill items
     val skills = skillsString
         .split(",")
         .map { it.trim() }
         .filter { it.isNotEmpty() }
 
+    // Wrap content into multiple rows as needed
     FlowRow(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = spacedBy(8.dp),
@@ -240,6 +249,7 @@ private fun SkillsChips(skillsString: String) {
                 shape = RoundedCornerShape(50),
                 color = MaterialTheme.colorScheme.primary.copy(alpha = 0.08f)
             ) {
+                // Single skill chip
                 Text(
                     text = skill,
                     style = MaterialTheme.typography.bodySmall.copy(

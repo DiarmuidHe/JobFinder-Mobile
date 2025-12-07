@@ -21,7 +21,7 @@ import android.widget.Toast
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
 
-        //accept permissions for notifications
+        // Ask for notification permission on Android 13+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             ActivityCompat.requestPermissions(
                 this,
@@ -35,6 +35,8 @@ class MainActivity : ComponentActivity() {
 //        WorkManager.getInstance(this).enqueue(testRequest)
 
         super.onCreate(savedInstanceState)
+
+        // Set XML layout as the base content (needed for the test button below)
         setContentView(R.layout.activity_main)
 
         // Now it’s safe to look for the button in that layout
@@ -45,6 +47,7 @@ class MainActivity : ComponentActivity() {
 //            WorkManager.getInstance(this).enqueue(testRequest)
 //        }
 
+        // Set the Jetpack Compose UI content
         setContent {
             JobFinderTheme {
                 JobFinder()
@@ -56,5 +59,6 @@ class MainActivity : ComponentActivity() {
 @Preview(showBackground = true)
 @Composable
 fun JobFinder() {
+    // Entry point Composable for the app UI
     JobFinderApp()
 }

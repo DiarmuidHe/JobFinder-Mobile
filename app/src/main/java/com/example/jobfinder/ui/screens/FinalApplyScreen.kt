@@ -16,16 +16,17 @@ import com.example.jobfinder.model.Job
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FinalApplyScreen(
-    job: Job?,
-    imageUri: Uri,
-    onCancel: () -> Unit,
-    onRetake: () -> Unit,
-    onApply: () -> Unit
+    job: Job?,                   // Job being applied for (nullable)
+    imageUri: Uri,               // The captured resume/photo the user is reviewing
+    onCancel: () -> Unit,        // Called when user cancels the application
+    onRetake: () -> Unit,        // Called when user wants to retake the photo
+    onApply: () -> Unit          // Called when the user confirms the application
 ) {
     val context = LocalContext.current
 
     Scaffold(
         topBar = {
+            // Display dynamic title based on selected job
             CenterAlignedTopAppBar(
                 title = {
                     Text(
@@ -43,7 +44,7 @@ fun FinalApplyScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            // Show job info if available
+            // Show company and location if job info exists
             job?.let {
                 Text(
                     text = it.company,
@@ -57,32 +58,32 @@ fun FinalApplyScreen(
                 Spacer(modifier = Modifier.height(16.dp))
             }
 
-            // Resume image preview
+            // Display the uploaded/captured resume image
             AsyncImage(
                 model = imageUri,
                 contentDescription = "Resume photo",
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f),
+                    .weight(1f),               // Take remaining vertical space
                 contentScale = ContentScale.Fit
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Buttons: Cancel | Retake | Apply
+            // Action buttons: Cancel | Retake | Apply
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
+                // Cancel button
                 OutlinedButton(
-                    onClick = {
-                        onCancel()
-                    },
+                    onClick = { onCancel() },
                     modifier = Modifier.weight(1f)
                 ) {
                     Text("Cancel")
                 }
 
+                // Retake photo button
                 FilledTonalButton(
                     onClick = { onRetake() },
                     modifier = Modifier.weight(1f)
@@ -90,9 +91,9 @@ fun FinalApplyScreen(
                     Text("Retake")
                 }
 
+                // Apply button – also shows a toast message
                 Button(
                     onClick = {
-                        // Show applied message
                         val jobTitle = job?.title ?: "this job"
                         Toast.makeText(
                             context,

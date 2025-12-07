@@ -17,18 +17,22 @@ class SearchUserPreferencesRepository(
     private val dataStore: DataStore<Preferences>
 ) {
     private companion object {
+        // Key used to store the user's last search text
         val SEARCH_STRING = stringPreferencesKey("search_string")
         const val TAG = "UserPreferencesRepo"
     }
 
+    // Save the user's search query into DataStore
     suspend fun saveSearchStringPreference(searchString: String) {
         dataStore.edit { mutablePreferences ->
             mutablePreferences[SEARCH_STRING] = searchString
         }
     }
 
+    // Read the saved search query (defaults to empty string)
     val searchString: Flow<String> = dataStore.data
         .catch {
+            // Handle read errors
             if (it is IOException) {
                 Log.e(TAG, "Error reading preferences.", it)
                 emit(emptyPreferences())

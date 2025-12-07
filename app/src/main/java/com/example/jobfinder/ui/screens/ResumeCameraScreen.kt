@@ -39,16 +39,16 @@ import kotlin.coroutines.resume
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ResumeCameraScreen(
-    jobId: String,
-    onBack: () -> Unit,
-    onPhotoCaptured: (Uri) -> Unit
+    jobId: String,                          // ID of the job the resume is for (not used yet, but available)
+    onBack: () -> Unit,                     // Navigate back
+    onPhotoCaptured: (Uri) -> Unit          // Called with the saved resume image URI
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
 
     var hasCameraPermission by remember { mutableStateOf(false) }
 
-    // Permission launcher
+    // Permission launcher for CAMERA
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { granted ->
@@ -58,10 +58,12 @@ fun ResumeCameraScreen(
         }
     }
 
+    // Request camera permission once on entering the screen
     LaunchedEffect(Unit) {
         permissionLauncher.launch(Manifest.permission.CAMERA)
     }
 
+    // CameraX ImageCapture instance
     val imageCapture = remember {
         ImageCapture.Builder()
             .setTargetRotation(android.view.Surface.ROTATION_0)
@@ -70,6 +72,7 @@ fun ResumeCameraScreen(
 
     var previewView: PreviewView? by remember { mutableStateOf(null) }
 
+    // Start camera preview when permission is granted
     LaunchedEffect(hasCameraPermission) {
         if (!hasCameraPermission) return@LaunchedEffect
 
@@ -90,6 +93,7 @@ fun ResumeCameraScreen(
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
+        // Top bar with back button
         TopAppBar(
             title = { Text("Capture Resume") },
             navigationIcon = {
@@ -102,6 +106,7 @@ fun ResumeCameraScreen(
             }
         )
 
+        // Waiting state while permission is pending/denied
         if (!hasCameraPermission) {
             Box(
                 modifier = Modifier.fillMaxSize(),
@@ -112,7 +117,7 @@ fun ResumeCameraScreen(
             return
         }
 
-        // Camera preview
+        // Camera preview view
         AndroidView(
             modifier = Modifier
                 .weight(1f)
@@ -122,9 +127,10 @@ fun ResumeCameraScreen(
             }
         )
 
-        // Capture button
+        // Capture button at the bottom
         Button(
             onClick = {
+                // Unique file name for the captured resume photo
                 val name = "resume_${
                     SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US)
                         .format(System.currentTimeMillis())
@@ -138,7 +144,7 @@ fun ResumeCameraScreen(
                     }
                 }
 
-                // PASS THE COLLECTION URI, NOT A ROW URI
+                // Use collection URI so CameraX can insert a new row
                 val outputOptions = ImageCapture.OutputFileOptions.Builder(
                     context.contentResolver,
                     MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
@@ -154,7 +160,7 @@ fun ResumeCameraScreen(
                         override fun onImageSaved(
                             outputFileResults: ImageCapture.OutputFileResults
                         ) {
-                            // This is the actual row URI that CameraX inserted
+                            // Actual URI of the saved image row
                             val savedUri = outputFileResults.savedUri
 
                             Toast.makeText(
@@ -166,7 +172,7 @@ fun ResumeCameraScreen(
                             if (savedUri != null) {
                                 onPhotoCaptured(savedUri)
                             } else {
-                                // Fallback if savedUri is null (rare)
+                                // Extremely rare case where URI is null
                                 Toast.makeText(
                                     context,
                                     "Image saved, but URI is null",
@@ -195,7 +201,7 @@ fun ResumeCameraScreen(
     }
 }
 
-// helper to get camera provider as a suspend function
+// Helper to get CameraProvider as a suspend function
 private suspend fun android.content.Context.getCameraProvider(): ProcessCameraProvider =
     suspendCancellableCoroutine { cont ->
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)

@@ -18,12 +18,17 @@ import com.example.jobfinder.model.Job
 
 @Composable
 fun JobInfoItem(
-    job: Job,
+    job: Job,                             // Job object containing info to display
     modifier: Modifier = Modifier
 ) {
+    // Card container for displaying brief job details
     Card(
         modifier = modifier.padding(dimensionResource(id = R.dimen.padding_small)),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+        )
     ) {
         Row(
             modifier = Modifier
@@ -36,20 +41,22 @@ fun JobInfoItem(
                     dimensionResource(id = R.dimen.padding_small)
                 )
             ) {
+                // Job title
                 Text(
                     text = job.title,
                     style = MaterialTheme.typography.titleLarge
                 )
+                // Company name
                 Text(
                     text = job.company,
                     style = MaterialTheme.typography.bodyLarge
                 )
+                // Job location
                 Text(
                     text = job.location,
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
-            // no favorite button here – this is just for the Home list
         }
     }
 }

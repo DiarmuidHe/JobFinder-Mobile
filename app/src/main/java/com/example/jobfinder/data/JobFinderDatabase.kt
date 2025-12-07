@@ -14,7 +14,10 @@ import com.example.jobfinder.model.FavoriteJob
 )
 abstract class JobFinderDatabase : RoomDatabase() {
 
+    // DAO for all job-related queries
     abstract fun jobDao(): JobDao
+
+    // DAO for managing favorite jobs
     abstract fun favoriteJobDao(): FavoriteJobDao
 
     companion object {
@@ -23,12 +26,14 @@ abstract class JobFinderDatabase : RoomDatabase() {
 
         fun getDatabase(context: Context): JobFinderDatabase {
             return INSTANCE ?: synchronized(this) {
+
+                // Build the Room database using a preloaded asset
                 Room.databaseBuilder(
                     context.applicationContext,
                     JobFinderDatabase::class.java,
-                    "job_finder.db"              // DB file name in /data/data
+                    "job_finder.db"              // Name of the local DB file
                 )
-                    .createFromAsset("database/job_finder.db")  // asset path
+                    .createFromAsset("database/job_finder.db")  // Load initial data from assets
                     .build()
                     .also { INSTANCE = it }
             }

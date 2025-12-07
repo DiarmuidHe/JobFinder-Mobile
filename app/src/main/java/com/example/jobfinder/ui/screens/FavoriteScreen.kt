@@ -15,10 +15,11 @@ import com.example.jobfinder.ui.components.FavoriteJobsItem
 
 @Composable
 fun FavoritesScreen(
-    favorites: List<FavoriteJob>,
-    onFavoriteJobClicked: (FavoriteJob) -> Unit,
-    isFavoriteButtonFilled: (FavoriteJob) -> Boolean
+    favorites: List<FavoriteJob>,                     // List of all user’s favorited jobs
+    onFavoriteJobClicked: (FavoriteJob) -> Unit,      // Handles favorite/unfavorite action
+    isFavoriteButtonFilled: (FavoriteJob) -> Boolean  // Checks if a job is currently favorited
 ) {
+    // Show an empty state message when no favorites exist
     if (favorites.isEmpty()) {
         Column(
             modifier = Modifier
@@ -36,6 +37,7 @@ fun FavoritesScreen(
             )
         }
     } else {
+        // Display list of favorited jobs
         Column(
             modifier = Modifier
                 .fillMaxSize()
