@@ -13,8 +13,4 @@ data class JobFinderUiState(
     val selectedJob: Job? = null,
 
     val favoriteJobs: List<FavoriteJob> = emptyList(),
-    val isOnboardingVisible: Boolean = false,
-
-    // whether the detail screen is visible
-    val isJobDetailVisible: Boolean = false
 )

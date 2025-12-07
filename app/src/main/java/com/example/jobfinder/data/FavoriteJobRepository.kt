@@ -10,8 +10,6 @@ interface FavoriteJobRepository {
     // Stream of all saved favorite jobs
     fun getFavoriteJobs(): Flow<List<FavoriteJob>>
 
-    // Get a specific favorite job by its job ID
-    fun getFavoriteJobByJobId(jobId: String): Flow<FavoriteJob?>
 
     // Save a job as favorite
     suspend fun insertFavoriteJob(favoriteJob: FavoriteJob)
@@ -19,8 +17,6 @@ interface FavoriteJobRepository {
     // Remove a job from favorites by ID
     suspend fun deleteFavoriteJob(jobId: String)
 
-    // Helper for UI: adds or removes a job from favorites
-    suspend fun toggleFavorite(job: Job)
 }
 
 class OfflineFavoriteJobRepository(
@@ -32,8 +28,6 @@ class OfflineFavoriteJobRepository(
         favoriteJobDao.getFavoriteJobs()
 
     // Look up a single favorite job
-    override fun getFavoriteJobByJobId(jobId: String): Flow<FavoriteJob?> =
-        favoriteJobDao.getFavoriteJobByJobId(jobId)
 
     // Insert a new favorite
     override suspend fun insertFavoriteJob(favoriteJob: FavoriteJob) =
@@ -43,25 +37,5 @@ class OfflineFavoriteJobRepository(
     override suspend fun deleteFavoriteJob(jobId: String) =
         favoriteJobDao.deleteFavoriteJob(jobId)
 
-    override suspend fun toggleFavorite(job: Job) {
-        // Check if this job is already saved
-        val existing = favoriteJobDao.getFavoriteJobByJobId(job.id).firstOrNull()
 
-        if (existing == null) {
-            // Convert Job → FavoriteJob and save it
-            val favorite = FavoriteJob(
-                jobId = job.id,
-                title = job.title,
-                company = job.company,
-                location = job.location,
-                description = job.description,
-                skills = job.skills,
-                image = job.image
-            )
-            favoriteJobDao.insertFavoriteJob(favorite)
-        } else {
-            // If it exists, remove it from favorites
-            favoriteJobDao.deleteFavoriteJob(job.id)
-        }
-    }
 }

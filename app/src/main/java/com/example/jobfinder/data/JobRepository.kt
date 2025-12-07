@@ -8,7 +8,7 @@ interface JobRepository {
     fun getJobsByQuery(query: String): Flow<List<Job>>
     fun getAllJobs(): Flow<List<Job>>
 
-    suspend fun updateApplied(jobId: String, applied: Boolean)   // NEW
+    suspend fun updateApplied(jobId: String, applied: Boolean)
 }
 
 class OfflineJobRepository(

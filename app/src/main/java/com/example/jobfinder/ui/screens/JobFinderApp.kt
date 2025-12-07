@@ -88,9 +88,7 @@ fun JobFinderApp(
         configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
     if (!isLandscape) {
-        // ---------------------------------
         // PORTRAIT: Top bar + Bottom bar
-        // ---------------------------------
         Scaffold(
             topBar = {
                 CenterAlignedTopAppBar(
@@ -202,9 +200,8 @@ fun JobFinderApp(
             )
         }
     } else {
-        // ---------------------------------
+
         // LANDSCAPE: Modal drawer + Top bar
-        // ---------------------------------
         val drawerState =
             rememberDrawerState(initialValue = DrawerValue.Closed)
         val scope = rememberCoroutineScope()

@@ -78,28 +78,6 @@ class JobFinderViewModel(
             }
     }
 
-    //  SELECTED JOB / DETAIL
-
-    // Open job detail for the selected job
-    fun onJobClick(job: Job) {
-        _uiState.update { state ->
-            state.copy(
-                selectedJob = job,
-                isJobDetailVisible = true        // show detail screen
-            )
-        }
-    }
-
-    // Close job detail screen
-    fun onJobDetailDismissed() {
-        _uiState.update { state ->
-            state.copy(
-                selectedJob = null,
-                isJobDetailVisible = false       // hide detail screen
-            )
-        }
-    }
-
     //FAVORITES (LIST & CARD)
 
     // Check if a FavoriteJob is in the current favorites list
